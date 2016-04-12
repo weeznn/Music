@@ -55,7 +55,7 @@ public class VisualizerView extends View {
 
     public void updata(byte[] up) {
         Log.i(TAG, "updata");
-        bytes = up;
+        this.bytes = up;
         //重绘
         invalidate();
     }
@@ -96,7 +96,7 @@ public class VisualizerView extends View {
     private void drawColumns(Canvas canvas){
         canvas.drawColor(Color.BLACK);
 
-        for (int i = 0; i < bytes.length - 1; i++) {
+        for (int i = 0; i < bytes.length - 1; i+=20) {
             int left = getWidth() * i / (bytes.length - 1);
             int top = getHeight() - (byte) (bytes[i + 1] + 128) * getHeight() / 128;
             int right = left + 1;
@@ -114,21 +114,24 @@ public class VisualizerView extends View {
         Path path=new Path();
         path.moveTo(0, getHeight() / 2);
         for(int i=0;i<bytes.length-1;i++){
-            // 计算第i个点的x坐标
-            points[i * 4] = getWidth()*i/(bytes.length - 1);
-            // 根据bytes[i]的值（波形点的值）计算第i个点的y坐标
-            points[i * 4 + 1] = (getHeight() / 2)
-                    + ((byte) (bytes[i] + 128)) * 128
-                    / (getHeight() / 2);
-            // 计算第i+1个点的x坐标
-            points[i * 4 + 2] = getWidth() * (i + 1)
-                    / (bytes.length - 1);
-            // 根据bytes[i+1]的值（波形点的值）计算第i+1个点的y坐标
-            points[i * 4 + 3] = (getHeight() / 2)
-                    + ((byte) (bytes[i + 1] + 128)) * 128
-                    / (getHeight() / 2);
+            canvas.drawPoint(getWidth()*i/bytes.length,
+                             getHeight() - (byte) (bytes[i + 1] + 128) * getHeight() / 128,
+                             paint);
+//            // 计算第i个点的x坐标
+//            points[i * 4] = getWidth()*i/(bytes.length - 1);
+//            // 根据bytes[i]的值（波形点的值）计算第i个点的y坐标
+//            points[i * 4 + 1] = (getHeight() / 2)
+//                    + ((byte) (bytes[i] + 128)) * 128
+//                    / (getHeight() / 2);
+//            // 计算第i+1个点的x坐标
+//            points[i * 4 + 2] = getWidth() * (i + 1)
+//                    / (bytes.length - 1);
+//            // 根据bytes[i+1]的值（波形点的值）计算第i+1个点的y坐标
+//            points[i * 4 + 3] = (getHeight() / 2)
+//                    + ((byte) (bytes[i + 1] + 128)) * 128
+//                    / (getHeight() / 2);
         }
-        canvas.drawPath(path,paint);
+//        canvas.drawPath(path,paint);
 
     }
 

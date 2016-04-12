@@ -17,6 +17,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     int showType=9;
     boolean isshow=false;
 
+
     private Button btn_play;
     private Button btn_pause;
     private Button btn_stop;
@@ -101,12 +102,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
                 Log.i(TAG, "快速傅里叶变化");
-
                 if (null != visualizer && Contanst.FFT == showType&&isshow) {
-                    visualizerView.updata(fft);
+                    visualizerView.updata(FFTtoHz(fft));
                 }
             }
-        }, Visualizer.getMaxCaptureRate() / 2, true, false);
+        }, Visualizer.getMaxCaptureRate() / 2, false, true);
 
         Log.i(TAG, "setupView over");
     }
@@ -130,17 +130,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             case R.id.columns:
                 visualizer.setEnabled(true);
-                showType = Contanst.WAVE;
+                showType = Contanst.FFT;
                 visualizerView.setDrawType(Contanst.COLUMNS);
                 isshow=true;
                 break;
 
             case R.id.line:
                 visualizer.setEnabled(true);
-                showType = Contanst.WAVE;
+                showType = Contanst.FFT;
                 visualizerView.setDrawType(Contanst.LINE);
                 isshow=true;
-
+                break;
             case R.id.exit:
                 mediaPlayer.release();
                 visualizer.setEnabled(false);
@@ -150,5 +150,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
             default:
                 break;
         }
+    }
+
+    public byte[] FFTtoHz(byte []bytes_copy){
+        double p=2*2.71828-5;
+        for(int i=0;i<bytes_copy.length-1;i++){
+            bytes_copy[i]= (byte) (20*Math.log(bytes_copy[i]/p));
+        }
+        return  bytes_copy;
     }
 }
