@@ -14,5 +14,7 @@ public class Contanst {
     //绘制不同的谱
     static final int COLUMNS=0;
     static final int LINE=1;
+    static final int RING=2;
+    static final int Cicle=3;
 
 }

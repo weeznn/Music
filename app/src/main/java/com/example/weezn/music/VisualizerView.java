@@ -82,6 +82,12 @@ public class VisualizerView extends View {
                 case Contanst.LINE:
                     drawLine(canvas);
                     break;
+                case Contanst.RING:
+                    drawRing(canvas);
+                    break;
+                case Contanst.Cicle:
+                    drawCircle(canvas);
+                    break;
                 default:
                     break;
             }
@@ -96,10 +102,10 @@ public class VisualizerView extends View {
     private void drawColumns(Canvas canvas){
         canvas.drawColor(Color.BLACK);
 
-        for (int i = 0; i < bytes.length - 1; i+=20) {
+        for (int i = 0; i < bytes.length - 1; i+=10) {
             int left = getWidth() * i / (bytes.length - 1);
-            int top = getHeight() - (byte) (bytes[i + 1] + 128) * getHeight() / 128;
-            int right = left + 1;
+            int top = getHeight() - (byte) (bytes[i + 1]) * getHeight() / 128;
+            int right = left + 10;
             int bottom = getHeight();
             canvas.drawRect(left, top, right, bottom, paint);
         }
@@ -111,29 +117,54 @@ public class VisualizerView extends View {
      */
     private void drawLine(Canvas canvas){
         canvas.drawColor(Color.BLACK);
-        Path path=new Path();
-        path.moveTo(0, getHeight() / 2);
-        for(int i=0;i<bytes.length-1;i++){
-            canvas.drawPoint(getWidth()*i/bytes.length,
-                             getHeight() - (byte) (bytes[i + 1] + 128) * getHeight() / 128,
-                             paint);
-//            // 计算第i个点的x坐标
-//            points[i * 4] = getWidth()*i/(bytes.length - 1);
-//            // 根据bytes[i]的值（波形点的值）计算第i个点的y坐标
-//            points[i * 4 + 1] = (getHeight() / 2)
-//                    + ((byte) (bytes[i] + 128)) * 128
-//                    / (getHeight() / 2);
-//            // 计算第i+1个点的x坐标
-//            points[i * 4 + 2] = getWidth() * (i + 1)
-//                    / (bytes.length - 1);
-//            // 根据bytes[i+1]的值（波形点的值）计算第i+1个点的y坐标
-//            points[i * 4 + 3] = (getHeight() / 2)
-//                    + ((byte) (bytes[i + 1] + 128)) * 128
-//                    / (getHeight() / 2);
-        }
-//        canvas.drawPath(path,paint);
-
+        paint.setColor(Color.BLUE);
+        paint.setStrokeWidth(10);
+        float sita= (float) ((bytes[0]*4/3)*0.52/10);
+        canvas.drawLine(0, (float) (getHeight()/2-Math.tan(sita)*getWidth()/2),
+                          getWidth(), (float) (getHeight()/2+Math.tan(sita)*getWidth()/2),paint);
     }
+
+    /**
+     * 绘制环形谱线
+     * @param canvas
+     */
+    private void drawRing(Canvas canvas){
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLACK);
+        canvas.drawRect(0,0,getWidth(),getHeight(),paint);
+
+        paint.setColor(Color.BLUE);
+        paint.setStrokeWidth(20);
+
+        float one=360/bytes.length;
+        int radius=200;
+
+        for(int i=0,j=1;i<bytes.length;j++,i+=20){
+            float len=bytes[i]*radius/18;
+            canvas.drawLine(getWidth()/2,getHeight()/2,
+                    (float) (getWidth()/2+len*Math.sin(one*j)),(float)(getHeight()/2+len* Math.cos(j*one)),paint);
+        }
+        paint.setColor(Color.BLACK);
+        canvas.drawCircle(getWidth()/2,getHeight()/2,radius,paint);
+    }
+
+    /**
+     * 绘制波纹图谱
+     * @param canvas
+     */
+    private void drawCircle(Canvas canvas){
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLACK);
+        canvas.drawRect(0,0,getWidth(),getHeight(),paint);
+
+        paint.setColor(Color.BLUE);
+        paint.setStrokeWidth(10);
+        paint.setStyle(Paint.Style.STROKE);
+
+        int radius=300/18;
+        canvas.drawCircle(getWidth()/2,getHeight()/2,bytes[0]*radius,paint);
+    }
+
 
     public void setDrawType(int drawType) {
         this.drawType = drawType;
