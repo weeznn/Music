@@ -62,7 +62,7 @@ public class VisualizerView extends View {
 
     public void updata(float point[]) {
         Log.i(TAG, "updata");
-        this.points=point;
+        this.points = point;
         //重绘
         invalidate();
     }
@@ -97,12 +97,13 @@ public class VisualizerView extends View {
 
     /**
      * 绘制柱形谱线
+     *
      * @param canvas
      */
-    private void drawColumns(Canvas canvas){
+    private void drawColumns(Canvas canvas) {
         canvas.drawColor(Color.BLACK);
 
-        for (int i = 0; i < bytes.length - 1; i+=10) {
+        for (int i = 0; i < bytes.length - 1; i += 10) {
             int left = getWidth() * i / (bytes.length - 1);
             int top = getHeight() - (byte) (bytes[i + 1]) * getHeight() / 128;
             int right = left + 10;
@@ -113,58 +114,72 @@ public class VisualizerView extends View {
 
     /**
      * 绘制线条谱线
+     *
      * @param canvas
      */
-    private void drawLine(Canvas canvas){
+    private void drawLine(Canvas canvas) {
         canvas.drawColor(Color.BLACK);
         paint.setColor(Color.BLUE);
         paint.setStrokeWidth(10);
-        float sita= (float) ((bytes[0]*4/3)*0.52/10);
-        canvas.drawLine(0, (float) (getHeight()/2-Math.tan(sita)*getWidth()/2),
-                          getWidth(), (float) (getHeight()/2+Math.tan(sita)*getWidth()/2),paint);
+        Log.i(TAG," "+bytes[0]);
+        float sita = (float) ((bytes[0]) * 30/ 16);
+//        canvas.drawLine(0, (float) (getHeight() / 2 - Math.tan(sita) * getWidth() / 2),
+//                getWidth(), (float) (getHeight() / 2 + Math.tan(sita) * getWidth() / 2), paint);
+        Path p=new Path();
+        p.moveTo(0, (float) (getHeight() / 2 - Math.tan(sita) * getWidth() / 2));
+        p.lineTo(0,getHeight());
+        p.lineTo(getWidth(),getHeight());
+        p.lineTo(getWidth(), (float) (getHeight() / 2 + Math.tan(sita) * getWidth() / 2));
+        p.lineTo(0, (float) (getHeight() / 2 - Math.tan(sita) * getWidth() / 2));
+        canvas.drawPath(p,paint);
     }
 
     /**
      * 绘制环形谱线
+     *
      * @param canvas
      */
-    private void drawRing(Canvas canvas){
+    private void drawRing(Canvas canvas) {
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.BLACK);
-        canvas.drawRect(0,0,getWidth(),getHeight(),paint);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 
         paint.setColor(Color.BLUE);
         paint.setStrokeWidth(20);
 
-        float one=360/bytes.length;
-        int radius=200;
+        float one = 360 / bytes.length;
+        int radius = 200;
 
-        for(int i=0,j=1;i<bytes.length;j++,i+=20){
-            float len=bytes[i]*radius/18;
-            canvas.drawLine(getWidth()/2,getHeight()/2,
-                    (float) (getWidth()/2+len*Math.sin(one*j)),(float)(getHeight()/2+len* Math.cos(j*one)),paint);
+        for (int i = 0, j = 1; i < bytes.length; j++, i += 20) {
+            float len = bytes[i] * radius / 18;
+            canvas.drawLine(getWidth() / 2, getHeight() / 2,
+                    (float) (getWidth() / 2 + len * Math.sin(one * j)), (float) (getHeight() / 2 + len * Math.cos(j * one)), paint);
         }
         paint.setColor(Color.BLACK);
-        canvas.drawCircle(getWidth()/2,getHeight()/2,radius,paint);
+        canvas.drawCircle(getWidth() / 2, getHeight() / 2, radius, paint);
     }
 
     /**
      * 绘制波纹图谱
+     *
      * @param canvas
      */
-    private void drawCircle(Canvas canvas){
+    private void drawCircle(Canvas canvas) {
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.BLACK);
-        canvas.drawRect(0,0,getWidth(),getHeight(),paint);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), paint);
 
         paint.setColor(Color.BLUE);
         paint.setStrokeWidth(10);
         paint.setStyle(Paint.Style.STROKE);
 
-        int radius=300/18;
-        canvas.drawCircle(getWidth()/2,getHeight()/2,bytes[0]*radius,paint);
+        int radius = 500 / 18;
+        canvas.drawCircle(getWidth() / 2, getHeight() / 2, bytes[0] * radius, paint);
+        canvas.drawCircle(0,0,bytes[0] * radius, paint);
+        canvas.drawCircle(0,getHeight(),bytes[0] * radius, paint);
+        canvas.drawCircle(getWidth(),0,bytes[0] * radius, paint);
+        canvas.drawCircle(getWidth(),getHeight(),bytes[0] * radius, paint);
     }
-
 
     public void setDrawType(int drawType) {
         this.drawType = drawType;
