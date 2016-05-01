@@ -1,10 +1,14 @@
 package com.example.weezn.music;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -15,9 +19,17 @@ import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
+    private final int VOICE_RECOGNITION_REQUST_CODE=1234;
     private Visualizer visualizer;
     private MediaPlayer mediaPlayer;
     private VisualizerView visualizerView = null;
@@ -33,6 +45,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button btn_line;
     private Button btn_ring;
     private Button btn_circle;
+    private Button btn_speack;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +66,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_line = (Button) findViewById(R.id.line);
         btn_ring= (Button) findViewById(R.id.ring);
         btn_circle= (Button) findViewById(R.id.cicle);
+        btn_speack= (Button) findViewById(R.id.speak);
 
         btn_play.setOnClickListener(this);
         btn_pause.setOnClickListener(this);
@@ -60,9 +76,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         btn_line.setOnClickListener(this);
         btn_ring.setOnClickListener(this);
         btn_circle.setOnClickListener(this);
+        btn_speack.setOnClickListener(this);
         //初始化
         setupView();
-
         Log.i(TAG, "oncreat stop");
     }
 
@@ -200,6 +216,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 visualizer.release();
                 finish();
                 break;
+            case R.id.speak:
+                PackageManager pm=getPackageManager();
+                //通过包查找是否有语音识别的服务
+                List<ResolveInfo> activities =pm.queryIntentActivities(new Intent(
+                        RecognizerIntent.ACTION_RECOGNIZE_SPEECH),0);
+                if(0!=activities.size()){
+                    startVoiceRecogntionActivity();
+                }else{
+                    btn_speack.setEnabled(false);
+                    btn_speack.setText("无法使用语音服务");
+                }
+
+                break;
             default:
                 break;
         }
@@ -219,5 +248,43 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
         bytes_copy[0]= (byte) (spl/bytes_copy.length);
         return  bytes_copy;
+    }
+
+
+    private void startVoiceRecogntionActivity(){
+        //设置语音识别参数
+        Intent intent=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                        "Speech recognition demo");
+        startActivityForResult(intent,VOICE_RECOGNITION_REQUST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(VOICE_RECOGNITION_REQUST_CODE==requestCode&&RESULT_OK==resultCode){
+            ArrayList<String> matches =data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            String resultString="";
+            for(int i=0;i<matches.size();i++){
+                resultString+=matches.get(i);
+            }
+            if(0!=resultString.length()){
+                if(0==resultString.compareTo("播放")){
+                    if(!mediaPlayer.isPlaying()){
+                        mediaPlayer.start();
+                    }
+                }else if(0==resultString.compareTo("停止")){
+                    if(!mediaPlayer.isPlaying()){
+                        mediaPlayer.stop();
+                    }
+                }
+                Toast.makeText(this,resultString,Toast.LENGTH_SHORT);
+            }else{
+                Toast.makeText(this,"获取信息错误请重试",Toast.LENGTH_LONG);
+            }
+
+        }
     }
 }

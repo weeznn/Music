@@ -65,6 +65,12 @@
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"/>
         </TableRow>
+        <Button
+            android:id="@+id/speak"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="20dp"
+            android:text="语音控制"/>
         <com.example.weezn.music.VisualizerView
             android:id="@+id/view"
             android:layout_width="match_parent"
